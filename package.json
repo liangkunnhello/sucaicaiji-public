@@ -1,0 +1,16 @@
+{
+  "name": "material-downloader",
+  "version": "1.0.0",
+  "description": "素材下载与 API 分类管理工具",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev"
+  },
+  "keywords": ["electron", "material", "downloader", "api-classification"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0"
+  }
+}

@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>素材场 · 下载与整理</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="business-theme.css">
+  <link rel="stylesheet" href="automation.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">M</div>
+        <div class="brand-copy">
+          <strong>素材运营台</strong>
+          <small>MATERIAL OPERATIONS</small>
+        </div>
+      </div>
+
+      <nav class="primary-tabs" aria-label="功能导航">
+        <button class="tab-btn active" data-tab="download">
+          <span>01</span><strong>下载中心</strong>
+        </button>
+        <button class="tab-btn" data-tab="classify">
+          <span>02</span><strong>素材治理</strong>
+        </button>
+        <button class="tab-btn" data-tab="automation">
+          <span>03</span><strong>自动化计划</strong>
+        </button>
+        <button class="tab-btn" data-tab="history">
+          <span>04</span><strong>运行历史</strong>
+        </button>
+      </nav>
+
+      <div class="topbar-actions">
+        <div class="local-status"><i></i><span>本地服务正常</span></div>
+        <button id="changeExportDir" class="export-location">
+          <span>默认导出位置</span>
+          <strong id="exportDirDisplay">D:\跑量素材\外部跑量素材</strong>
+          <b>更改</b>
+        </button>
+        <button id="openSaveDir" class="open-directory">打开目录</button>
+        <button id="openApiConfig" class="open-directory api-entry" onclick="jumpToApiConfig()" title="修改视觉模型 API 配置">
+          API 配置<b id="apiEntryDot" class="api-entry-dot" hidden></b>
+        </button>
+      </div>
+    </header>
+
+    <main class="main-frame">
+      <section class="tab-content active" id="download-tab">
+        <div class="download-shell">
+          <div class="section-heading">
+            <div>
+              <span>DOWNLOAD OPERATIONS</span>
+              <h1>素材下载中心</h1>
+            </div>
+            <p>统一管理渠道、筛选条件与下载任务；下载仅保存原始素材。</p>
+          </div>
+
+          <section class="progress-console" id="download-progress-console" data-status="idle">
+            <div class="progress-identity">
+              <div class="task-status-pill" id="download-status"><i></i><strong>待命</strong></div>
+              <h2 id="progress-platform">等待下载任务</h2>
+              <p id="progress-message">选择来源和条件后启动任务。</p>
+            </div>
+
+            <div class="progress-track-wrap">
+              <div class="progress-orbit" id="download-progress-orbit" style="--progress: 0">
+                <div class="progress-orbit-inner">
+                  <strong id="download-progress-value">0%</strong>
+                  <span id="download-progress-caption">尚未开始</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="progress-phase">
+              <span>当前阶段</span>
+              <strong id="progress-stage">等待配置</strong>
+            </div>
+
+            <div class="progress-numbers">
+              <div><span>当前 / 总数</span><strong><b id="progress-current">0</b><i>/</i><b id="progress-total">—</b></strong></div>
+              <div><span>失败</span><strong id="progress-failed">0</strong></div>
+              <div><span>耗时</span><strong id="progress-elapsed">00:00</strong></div>
+            </div>
+
+            <div class="stage-rail" id="download-stage-rail">
+              <div class="stage-node current" data-stage="connecting"><span>01</span><strong>连接</strong></div>
+              <div class="stage-node" data-stage="collecting"><span>02</span><strong>采集</strong></div>
+              <div class="stage-node" data-stage="downloading"><span>03</span><strong>下载</strong></div>
+              <div class="stage-node" data-stage="completed"><span>04</span><strong>完成</strong></div>
+            </div>
+
+            <button class="task-action-stop" id="stopDownloadBtn" type="button" disabled>停止</button>
+          </section>
+
+          <div class="download-workspace">
+            <aside class="source-orbit">
+              <div class="orbit-rings" aria-hidden="true"></div>
+              <div class="orbit-core">
+                <span>DATA SOURCE</span>
+                <strong>数据来源</strong>
+                <small>4 个渠道可用</small>
+              </div>
+
+              <div class="platform-tabs" role="tablist" aria-label="素材来源">
+                <button class="platform-btn" data-platform="admuse">
+                  <span>01</span><strong>妙思</strong><small>AdMuse</small><i></i>
+                </button>
+                <button class="platform-btn active" data-platform="appgrowing">
+                  <span>02</span><strong>有米云</strong><small>AppGrowing</small><i></i>
+                </button>
+                <button class="platform-btn" data-platform="reyun">
+                  <span>03</span><strong>热云</strong><small>Reyun</small><i></i>
+                </button>
+                <button class="platform-btn" data-platform="internal">
+                  <span>04</span><strong>内部系统</strong><small>Internal</small><i></i>
+                </button>
+              </div>
+            </aside>
+
+            <section class="control-panel">
+              <div class="platform-content">
+                <div class="platform-panel" id="admuse-panel">
+                  <div class="panel-title-row">
+                    <div><span>01 / ADMUSE</span><h2>妙思素材下载</h2><p>腾讯广告素材洞察</p></div>
+                    <em><i></i>已登录</em>
+                  </div>
+                  <div class="form-grid three">
+                    <label class="form-group"><span>时间范围</span><select id="admuse-time"><option value="1d">近 1 天</option><option value="3d">近 3 天</option><option value="7d" selected>近 7 天</option><option value="30d">近 30 天</option></select></label>
+                    <label class="form-group"><span>行业分类</span><select id="admuse-industry"><option value="insurance">金融 · 保险服务</option><option value="telecom">通信运营商</option><option value="lifestyle">生活优惠资讯</option></select></label>
+                    <label class="form-group"><span>最大下载数</span><input type="number" id="admuse-max" value="500" min="1" max="5000"></label>
+                  </div>
+                  <button class="action-cta" data-download-action onclick="startDownload('admuse')"><span>启动妙思下载</span><b>继续 →</b></button>
+                </div>
+
+                <div class="platform-panel active" id="appgrowing-panel">
+                  <div class="panel-title-row">
+                    <div><span>02 / APPGROWING</span><h2>有米云素材下载</h2><p>全媒体广告情报</p></div>
+                    <em><i></i>已登录</em>
+                  </div>
+
+                  <div class="form-grid">
+                    <label class="form-group form-group-wide"><span>搜索关键词</span><input type="text" id="appgrowing-keyword" placeholder="品牌 / 品类 / 投放关键词"></label>
+                  </div>
+
+                  <div class="filter-row">
+                    <div class="form-group filter-block collapsed">
+                      <button type="button" class="filter-toggle" data-filter-target="appgrowing-media-panel" aria-expanded="false">
+                        <span><strong>广告媒体</strong><small>微信、抖音、联盟媒体、厂商媒体等</small></span>
+                        <b id="appgrowing-media-count">0 / 53 已选</b><em>＋</em>
+                      </button>
+                      <div class="filter-panel" id="appgrowing-media-panel">
+                        <header><div><span>MEDIA SELECTOR</span><h3>选择广告媒体</h3><p>可搜索并批量选择 53 个媒体来源</p></div><button type="button" class="filter-toggle filter-close" data-filter-target="appgrowing-media-panel">关闭</button></header>
+                        <div class="filter-toolbar">
+                          <label class="filter-search"><input type="search" data-filter-search="appgrowing-media" placeholder="搜索 53 个广告媒体"></label>
+                          <div class="filter-actions"><button type="button" data-filter-action="select" data-filter-group="appgrowing-media">全选当前</button><button type="button" data-filter-action="clear" data-filter-group="appgrowing-media">清空</button></div>
+                        </div>
+                        <div class="filter-options-grid" id="appgrowing-media"></div>
+                      </div>
+                    </div>
+
+                    <div class="form-group filter-block collapsed">
+                      <button type="button" class="filter-toggle" data-filter-target="appgrowing-traffic-panel" aria-expanded="false">
+                        <span><strong>流量平台</strong><small>腾讯、巨量、百度及联盟平台</small></span>
+                        <b id="appgrowing-traffic-count">0 / 35 已选</b><em>＋</em>
+                      </button>
+                      <div class="filter-panel" id="appgrowing-traffic-panel">
+                        <header><div><span>TRAFFIC SELECTOR</span><h3>选择流量平台</h3><p>可搜索并批量选择 35 个流量平台</p></div><button type="button" class="filter-toggle filter-close" data-filter-target="appgrowing-traffic-panel">关闭</button></header>
+                        <div class="filter-toolbar">
+                          <label class="filter-search"><input type="search" data-filter-search="appgrowing-traffic" placeholder="搜索 35 个流量平台"></label>
+                          <div class="filter-actions"><button type="button" data-filter-action="select" data-filter-group="appgrowing-traffic">全选当前</button><button type="button" data-filter-action="clear" data-filter-group="appgrowing-traffic">清空</button></div>
+                        </div>
+                        <div class="filter-options-grid" id="appgrowing-traffic"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-grid appgrowing-controls">
+                    <div class="form-group appgrowing-view-field">
+                      <span>结果类型</span>
+                      <div class="view-segmented" role="radiogroup" aria-label="有米云结果类型">
+                        <label><input type="radio" name="appgrowing-view" value="广告" checked><span>广告</span></label>
+                        <label><input type="radio" name="appgrowing-view" value="素材"><span>素材</span></label>
+                      </div>
+                    </div>
+                    <label class="form-group"><span>素材类型</span><select id="appgrowing-type"><option value="全部素材类型">全部素材类型</option><option value="视频">视频</option><option value="竖视频">竖视频</option><option value="全屏视频">全屏视频</option><option value="图片">图片</option><option value="图标">图标</option><option value="轮播图">轮播图</option><option value="组图">组图</option><option value="GIF">GIF</option><option value="网页">网页</option></select></label>
+                    <label class="form-group"><span>素材比例</span><select id="appgrowing-ratio"><option value="全部素材比例">全部素材比例</option><option value="横版">全部横版</option><option value="16:9">16:9</option><option value="5:4">5:4</option><option value="3:2">3:2</option><option value="4:3">4:3</option><option value="6:5">6:5</option><option value="竖版">全部竖版</option><option value="9:16">9:16</option><option value="4:5">4:5</option><option value="2:3">2:3</option><option value="3:4">3:4</option><option value="5:6">5:6</option><option value="方形">全部方形</option><option value="1:1">1:1</option></select></label>
+                    <label class="form-group"><span id="appgrowing-sort-label">广告排序</span><select id="appgrowing-sort"></select></label>
+                    <label class="form-group"><span>最大下载数</span><input type="number" id="appgrowing-max" value="500" min="1" max="5000"></label>
+                  </div>
+                  <button class="action-cta" data-download-action onclick="startDownload('appgrowing')"><span>启动有米云下载</span><b>继续 →</b></button>
+                </div>
+
+                <div class="platform-panel" id="reyun-panel">
+                  <div class="panel-title-row">
+                    <div><span>03 / REYUN</span><h2>热云素材下载</h2><p>移动广告创意洞察</p></div>
+                    <em><i></i>已登录</em>
+                  </div>
+                  <div class="form-grid">
+                    <label class="form-group form-group-wide"><span>搜索关键词</span><input type="text" id="reyun-keyword" placeholder="品牌 / APP / 品类"></label>
+                    <label class="form-group"><span>创意类型</span><select id="reyun-type"><option value="">全部创意类型</option><option value="图片" selected>图片</option><option value="视频">视频</option></select></label>
+                    <label class="form-group"><span>排序方式</span><select id="reyun-sort"><option value="曝光预估">曝光预估</option><option value="近7天曝光">近 7 天曝光</option><option value="首次投放时间">首次投放时间</option></select></label>
+                    <label class="form-group"><span>最大下载数</span><input type="number" id="reyun-max" value="500" min="1" max="5000"></label>
+                  </div>
+                  <button class="action-cta" data-download-action onclick="startDownload('reyun')"><span>启动热云下载</span><b>继续 →</b></button>
+                </div>
+
+                <div class="platform-panel" id="internal-panel">
+                  <div class="panel-title-row">
+                    <div><span>04 / INTERNAL</span><h2>内部系统素材导出</h2><p>按日期导出素材消耗明细</p></div>
+                    <em><i></i>已登录</em>
+                  </div>
+                  <div class="form-grid">
+                    <label class="form-group"><span>数据日期（下载哪一天的表格）</span><input type="date" id="internal-date"></label>
+                    <div class="form-group">
+                      <span>快捷选择</span>
+                      <div class="date-quick-row">
+                        <button type="button" class="date-quick" data-days="1">昨天</button>
+                        <button type="button" class="date-quick" data-days="2">前天</button>
+                        <button type="button" class="date-quick" data-days="7">一周前</button>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="api-hint" id="internal-date-hint">默认昨天。产出目录按内部系统口径 = 数据日期 + 1 天（选 10-12 → 目录 20261013）。</p>
+                  <button class="action-cta" data-download-action onclick="startDownload('internal')"><span>启动内部导出</span><b>继续 →</b></button>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <aside class="log-container download-log-container">
+            <div class="log-header">
+              <div><span>TASK LOG</span><h4>任务日志</h4></div>
+              <div class="log-actions">
+                <button type="button" class="log-size-btn" onclick="resizeLogPanel(-1)" title="缩小日志区">−</button>
+                <button type="button" class="log-size-btn" onclick="resizeLogPanel(1)" title="放大日志区">＋</button>
+                <button type="button" class="log-size-btn" onclick="resetLogPanelSize()" title="恢复默认高度">复位</button>
+                <button type="button" onclick="clearLog('download-log')">清空</button>
+              </div>
+            </div>
+            <div id="download-log" class="log-box"></div>
+            <div class="log-footer"><span id="download-log-status">等待任务输出</span><span>UTF-8</span></div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="tab-content" id="classify-tab">
+        <div class="classify-shell">
+          <div class="classify-heading">
+            <div><span>ASSET GOVERNANCE</span><h1>素材治理中心</h1><p>统一执行智能分类、方向拆解与文件归档。</p></div>
+            <div class="runtime-status" id="runtime-status">正在检测运行环境...</div>
+          </div>
+
+          <div class="classify-workspace">
+            <aside class="classify-mode">
+              <div class="mode-card mode-card-recommended active" data-mode="fast"><span>01</span><strong>API 极速分类</strong><small>纯 API · 并发 · 校准提示词</small></div>
+              <div class="mode-card" data-mode="direction"><span>02</span><strong>画面方向拆解</strong><small>策略 · 构图 · 提示词</small></div>
+              <div class="mode-card" data-mode="pure-api"><span>03</span><strong>API 精细分类</strong><small>低并发 · 高阈值 · 精细复核</small></div>
+            </aside>
+
+            <section class="classify-controls">
+              <div class="option-surface" id="fast-options">
+                <div class="option-title"><span>API FAST CLASSIFICATION</span><h2>API 极速分类</h2></div>
+                <div class="form-grid compact">
+                  <label class="form-group form-group-wide"><span>素材目录</span><div class="input-action-row"><input type="text" id="classify-dir-fast" value="" placeholder="选择或直接粘贴「原始素材」目录，支持 \\服务器\共享 网络路径" oninput="onClassifyDirInput('fast')"><button onclick="selectClassifyDirFast()">选择</button></div></label>
+                  <label class="form-group"><span>分类平台</span><select id="platform-fast" onchange="updatePlatformHint('fast')"><option value="auto" selected>自动识别（按目录名）</option><option value="internal">内部系统</option><option value="admuse">妙思</option><option value="appgrowing">有米云</option><option value="reyun">热云</option></select></label>
+                  <label class="form-group form-group-wide"><span>结果输出目录</span><div class="input-action-row"><input type="text" id="output-dir-fast" value="" placeholder="留空 = 自动放到「素材目录」旁边的「分类结果」"><button onclick="selectOutputDirFast()">选择</button></div></label>
+                </div>
+                <div class="api-hint" id="platform-hint-fast">平台决定用哪套方向规则和输出结构。选「自动识别」时按路径里的“妙思 / 有米云 / 热云 / 内部系统”判断。</div>
+                <div class="fast-flow" aria-label="极速分类处理流程">
+                  <div class="fast-flow-step"><span>01</span><strong>图片并发提交</strong><small>API ONLY</small></div>
+                  <i aria-hidden="true">→</i>
+                  <div class="fast-flow-step"><span>02</span><strong>AI 提取关键词</strong><small>只返回证据</small></div>
+                  <i aria-hidden="true">→</i>
+                  <div class="fast-flow-step"><span>03</span><strong>系统规则归档</strong><small>10 产品 · 23 类</small></div>
+                </div>
+                <div class="form-grid three compact-bottom">
+                  <label class="form-group"><span>API 并发数</span><input type="number" id="parallel-count-fast" value="10" min="1" max="10"></label>
+                  <label class="form-group"><span>最低置信度</span><input type="number" id="min-confidence-fast" value="0.85" min="0" max="1" step="0.05"></label>
+                  <div class="form-group"><span>文件操作</span><div class="file-action-group two-options"><label><input type="radio" name="file-action-fast" value="copy" checked><span>复制</span></label><label><input type="radio" name="file-action-fast" value="move"><span>移动</span></label></div></div>
+                  <label class="switch-row"><input type="checkbox" id="apply-copy-fast" checked><span>执行文件操作</span><i></i></label>
+                </div>
+                <div class="direction-note fast-mode-note"><span>证据与决策分离</span><strong>AI 只返回可见关键词 · 产品与方向由本地规则打分 · 冲突自动进入待确认</strong></div>
+                <div class="prompt-rule-card">
+                  <div><span>PROMPT RULES</span><strong>AI 关键词提取规则</strong><small>控制 AI 提取哪些证据，不允许 AI 直接决定分类</small></div>
+                  <button type="button" onclick="openApiPromptEditor()">查看 / 编辑</button>
+                </div>
+              </div>
+
+              <div class="option-surface" id="direction-options" style="display:none">
+                <div class="option-title"><span>DIRECTION EXTRACT</span><h2>画面方向拆解</h2></div>
+                <div class="form-grid compact">
+                  <label class="form-group form-group-wide"><span>素材目录</span><div class="input-action-row"><input type="text" id="classify-dir-direction" value="" placeholder="选择或直接粘贴「原始素材」目录，支持 \\服务器\共享 网络路径"><button onclick="selectClassifyDirDirection()">选择</button></div></label>
+                  <label class="form-group"><span>并行数量</span><input type="number" id="parallel-count-direction" value="5" min="1" max="10"></label>
+                  <label class="form-group"><span>最低置信度</span><input type="number" id="min-confidence" value="0.85" min="0" max="1" step="0.05"></label>
+                  <div class="form-group form-group-wide"><span>文件操作</span><div class="file-action-group"><label><input type="radio" name="file-action-direction" value="copy" checked><span>复制</span></label><label><input type="radio" name="file-action-direction" value="move"><span>移动</span></label><label><input type="radio" name="file-action-direction" value="backup-move"><span>备份移动</span></label></div></div>
+                  <label class="switch-row form-group-wide"><input type="checkbox" id="apply-copy-direction" checked><span>执行文件操作</span><i></i></label>
+                </div>
+                <div class="direction-note"><span>输出结构</span><strong>主体 · 构图 · 色彩 · 视觉钩子 · 提示词公式</strong></div>
+              </div>
+
+              <div class="option-surface" id="pure-api-options" style="display:none">
+                <div class="option-title"><span>PRECISE API CLASSIFICATION</span><h2>API 精细分类</h2></div>
+                <div class="form-grid compact">
+                  <label class="form-group form-group-wide"><span>素材目录</span><div class="input-action-row"><input type="text" id="classify-dir-pure-api" value="" placeholder="选择或直接粘贴待分类素材目录，支持 \\服务器\共享 网络路径" oninput="onClassifyDirInput('pure-api')"><button onclick="selectClassifyDirPureApi()">选择</button></div></label>
+                  <label class="form-group"><span>分类平台</span><select id="platform-pure-api" onchange="updatePlatformHint('pure-api')"><option value="auto" selected>自动识别（按目录名）</option><option value="internal">内部系统</option><option value="admuse">妙思</option><option value="appgrowing">有米云</option><option value="reyun">热云</option></select></label>
+                  <label class="form-group form-group-wide"><span>结果输出目录</span><div class="input-action-row"><input type="text" id="output-dir-pure-api" value="" placeholder="留空 = 自动放到「素材目录」旁边的「分类结果」"><button onclick="selectOutputDirPureApi()">选择</button></div></label>
+                  <label class="form-group"><span>并行数量</span><input type="number" id="parallel-count-pure-api" value="2" min="1" max="10"></label>
+                  <label class="form-group"><span>最低置信度</span><input type="number" id="min-confidence-pure-api" value="0.90" min="0" max="1" step="0.05"></label>
+                  <div class="form-group form-group-wide"><span>文件操作</span><div class="file-action-group"><label><input type="radio" name="file-action-pure-api" value="copy" checked><span>复制</span></label><label><input type="radio" name="file-action-pure-api" value="move"><span>移动</span></label></div></div>
+                  <label class="switch-row form-group-wide"><input type="checkbox" id="apply-copy-pure-api" checked><span>执行文件操作</span><i></i></label>
+                </div>
+                <div class="api-hint" id="platform-hint-pure-api">平台决定用哪套方向规则和输出结构。选「自动识别」时按路径里的“妙思 / 有米云 / 热云 / 内部系统”判断。</div>
+                <div class="direction-note"><span>输出结构</span><strong>产品/方向 · 置信度低或模糊→待确认</strong></div>
+                <div class="api-hint">AI 只提取关键词；使用 349 张成品校准的本地规则，以更低并发和更高阈值谨慎判定</div>
+                <div class="prompt-rule-card">
+                  <div><span>PROMPT RULES</span><strong>AI 关键词提取规则</strong><small>极速和精细模式共用；系统规则负责最终分类</small></div>
+                  <button type="button" onclick="openApiPromptEditor()">查看 / 编辑</button>
+                </div>
+              </div>
+
+              <div class="action-buttons">
+                <button class="classify-start" onclick="startClassify()">启动整理任务 <b>→</b></button>
+                <button class="classify-stop" onclick="stopClassify()" disabled>停止</button>
+              </div>
+            </section>
+
+            <aside class="classify-side">
+              <section class="classify-progress-panel" id="classify-progress-panel" data-status="idle">
+                <div class="classify-progress-head">
+                  <div><span>CLASSIFICATION RUN</span><h3>整理进度</h3></div>
+                  <div class="classify-progress-state"><i></i><strong id="classify-progress-status">待命</strong></div>
+                </div>
+                <div class="classify-progress-copy">
+                  <div><strong id="classify-progress-percent">0%</strong><span id="classify-progress-phase">等待任务</span></div>
+                  <p id="classify-progress-message">选择素材目录后启动整理任务。</p>
+                </div>
+                <div class="classify-progress-track"><i id="classify-progress-bar"></i></div>
+                <div class="classify-progress-metrics">
+                  <div><span>已处理</span><strong><b id="classify-progress-current">0</b><em>/</em><b id="classify-progress-total">—</b></strong></div>
+                  <div><span>自动分类</span><strong id="classify-progress-auto">0</strong></div>
+                  <div><span>待确认</span><strong id="classify-progress-review">0</strong></div>
+                  <div><span>耗时</span><strong id="classify-progress-elapsed">00:00</strong></div>
+                </div>
+              </section>
+
+              <section class="api-panel">
+                <div><span>MODEL ACCESS</span><h3>智能分析 API</h3></div>
+                <label class="form-group"><span>API Endpoint</span><input type="text" id="api-endpoint" placeholder="https://api.example.com/v1/chat"></label>
+                <div class="form-grid">
+                  <label class="form-group"><span>Model ID</span><input type="text" id="model-id" placeholder="gpt-4-vision"></label>
+                  <label class="form-group"><span>API Key</span><input type="password" id="api-key" placeholder="sk-..."></label>
+                </div>
+                <button class="save-api" onclick="saveApiConfig()">保存 API 配置</button>
+              </section>
+
+              <section class="log-container classify-log-container">
+                <div class="log-header"><div><span>ENGINE OUTPUT</span><h4>引擎输出</h4></div><button type="button" onclick="clearLog('classify-log')">清空</button></div>
+                <div id="classify-log" class="log-box log-box-tall"></div>
+                <div class="log-footer"><span id="classify-log-status">等待整理任务</span><span>UTF-8</span></div>
+              </section>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-content" id="automation-tab">
+        <div class="auto-shell">
+          <div class="section-heading auto-heading">
+            <div>
+              <span>AUTOMATION PLANS</span>
+              <h1>自动化计划</h1>
+              <p>到点自动「下载 + 分类」一条龙，无需人工守着。</p>
+            </div>
+            <div class="auto-heading-actions">
+              <div class="scheduler-state" id="schedulerState"><i></i><span>调度器状态检测中…</span></div>
+              <button class="auto-primary" type="button" onclick="openPlanEditor()">＋ 新建计划</button>
+            </div>
+          </div>
+
+          <div class="auto-queue-bar" id="autoQueueBar" data-idle="true">
+            <div><span>QUEUE</span><strong id="queueSummary">当前无任务</strong></div>
+            <div class="auto-queue-list" id="queueList"></div>
+          </div>
+
+          <div class="auto-plan-list" id="autoPlanList"></div>
+          <div class="auto-empty" id="autoPlanEmpty" hidden>
+            <strong>还没有采集计划</strong>
+            <span>点右上角「新建计划」，设定执行时间和星期即可自动跑。</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-content" id="history-tab">
+        <div class="auto-shell">
+          <div class="section-heading auto-heading">
+            <div>
+              <span>RUN HISTORY</span>
+              <h1>运行历史</h1>
+              <p>每次采集与分类的结果、耗时与完整日志。</p>
+            </div>
+            <div class="auto-heading-actions">
+              <div class="scheduler-state" id="historySummary"><i></i><span>加载中…</span></div>
+              <button class="auto-ghost" type="button" onclick="refreshRuns()">刷新</button>
+              <button class="auto-ghost auto-danger" type="button" onclick="clearRuns()">清空记录</button>
+            </div>
+          </div>
+
+          <div class="auto-run-table-wrap">
+            <table class="auto-run-table">
+              <thead>
+                <tr>
+                  <th>开始时间</th>
+                  <th>计划 / 平台</th>
+                  <th>触发</th>
+                  <th>状态</th>
+                  <th>下载</th>
+                  <th>分类</th>
+                  <th>耗时</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="autoRunBody"></tbody>
+            </table>
+            <div class="auto-empty" id="autoRunEmpty" hidden>
+              <strong>还没有运行记录</strong>
+              <span>计划触发或手动执行后，这里会留下每次的结果。</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="runLogModal" class="prompt-editor-modal" hidden aria-hidden="true">
+    <button class="prompt-editor-backdrop" type="button" aria-label="关闭" onclick="closeRunLog()"></button>
+    <section class="prompt-editor-dialog run-log-dialog" role="dialog" aria-modal="true" aria-labelledby="runLogTitle">
+      <header class="prompt-editor-head">
+        <div>
+          <span>RUN DETAIL</span>
+          <h2 id="runLogTitle">运行详情</h2>
+          <p id="runLogMeta"></p>
+        </div>
+        <div class="prompt-editor-head-actions">
+          <strong id="runLogStatus">—</strong>
+          <button type="button" aria-label="关闭" onclick="closeRunLog()">×</button>
+        </div>
+      </header>
+      <div class="run-log-actions">
+        <button class="auto-ghost" type="button" onclick="openCurrentRunFolder('batch')">打开批次目录</button>
+        <button class="auto-ghost" type="button" onclick="openCurrentRunFolder('classification')">打开分类结果</button>
+        <button class="auto-ghost" type="button" onclick="copyRunLog()">复制日志</button>
+      </div>
+      <div class="run-log-body" id="runLogBody"></div>
+    </section>
+  </div>
+
+  <div id="planModal" class="prompt-editor-modal" hidden aria-hidden="true">
+    <button class="prompt-editor-backdrop" type="button" aria-label="关闭" onclick="closePlanEditor()"></button>
+    <section class="prompt-editor-dialog plan-editor-dialog" role="dialog" aria-modal="true" aria-labelledby="planEditorTitle">
+      <header class="prompt-editor-head">
+        <div>
+          <span>CAPTURE PLAN</span>
+          <h2 id="planEditorTitle">新建采集计划</h2>
+          <p>设定执行时间与星期后，工具会在后台自动完成下载和分类。</p>
+        </div>
+        <div class="prompt-editor-head-actions">
+          <button type="button" aria-label="关闭" onclick="closePlanEditor()">×</button>
+        </div>
+      </header>
+
+      <div class="plan-editor-body">
+        <input type="hidden" id="plan-id">
+
+        <fieldset class="plan-fieldset">
+          <legend>基础</legend>
+          <div class="plan-grid">
+            <label class="plan-field plan-span-2"><span>计划名称</span><input type="text" id="plan-name" placeholder="例如：妙思每日素材采集"></label>
+            <label class="plan-field"><span>采集平台</span><select id="plan-platform"></select></label>
+            <label class="plan-field"><span>执行时间</span><input type="time" id="plan-time" value="06:30"></label>
+            <label class="plan-field plan-span-2"><span>下载根目录</span>
+              <div class="input-action-row">
+                <input type="text" id="plan-root" placeholder="D:\跑量素材\外部跑量素材">
+                <button type="button" onclick="pickPlanRoot()">选择</button>
+              </div>
+              <small id="plan-root-hint" class="plan-field-hint"></small>
+            </label>
+          </div>
+          <label class="plan-switch"><input type="checkbox" id="plan-follow-global" checked><span>跟随「下载中心」的导出目录（推荐）</span><i></i></label>
+          <div class="plan-field"><span>每周执行日</span>
+            <div class="weekday-row" id="plan-weekdays"></div>
+          </div>
+          <label class="plan-field"><span>最大下载数</span><input type="number" id="plan-max" value="500" min="1" max="100000"></label>
+          <label class="plan-switch"><input type="checkbox" id="plan-enabled" checked><span>启用该计划</span><i></i></label>
+          <label class="plan-switch"><input type="checkbox" id="plan-background" checked><span>后台静默模式（不抢占账号管家窗口）</span><i></i></label>
+        </fieldset>
+
+        <fieldset class="plan-fieldset" id="plan-platform-params">
+          <legend>平台参数 · <b id="plan-platform-name">妙思</b></legend>
+
+          <div class="plan-platform-block" data-platform="admuse">
+            <div class="plan-grid">
+              <label class="plan-field plan-span-2"><span>搜索关键词（留空为不限定）</span><input type="text" id="plan-admuse-keyword" placeholder="例如：快手"></label>
+              <label class="plan-field"><span>时间范围</span><select id="plan-time-range">
+                <option value="1d">近 1 天</option><option value="3d">近 3 天</option>
+                <option value="7d">近 7 天</option><option value="30d">近 30 天</option></select></label>
+              <label class="plan-field"><span>行业分类</span><select id="plan-industries">
+                <option value="insurance">金融 · 保险服务</option><option value="telecom">通信运营商</option>
+                <option value="lifestyle">生活优惠资讯</option><option value="ecommerce">电商购物</option></select></label>
+              <label class="plan-field"><span>排序方式</span><select id="plan-admuse-sort">
+                <option value="跑量得分降序">跑量得分降序</option><option value="曝光量降序">曝光量降序</option>
+                <option value="点击率降序">点击率降序</option><option value="曝光转化率降序">曝光转化率降序</option>
+                <option value="点击转化率降序">点击转化率降序</option><option value="综合得分降序">综合得分降序</option></select></label>
+              <label class="plan-field"><span>最低跑量得分</span><input type="number" id="plan-score" value="40" min="0" max="100"></label>
+            </div>
+          </div>
+
+          <div class="plan-platform-block" data-platform="appgrowing">
+            <div class="plan-grid">
+              <label class="plan-field plan-span-2"><span>搜索关键词（留空为不限定）</span><input type="text" id="plan-appgrowing-keyword" placeholder="品牌 / 品类 / 投放关键词"></label>
+              <label class="plan-field"><span>结果类型</span><select id="plan-result-view">
+                <option value="广告">广告</option><option value="素材">素材</option></select></label>
+              <label class="plan-field"><span>素材类型</span><select id="plan-material-type">
+                <option value="全部素材类型">全部素材类型</option><option value="图片">图片</option>
+                <option value="视频">视频</option><option value="图标">图标</option><option value="轮播图">轮播图</option>
+                <option value="组图">组图</option><option value="GIF">GIF</option><option value="网页">网页</option></select></label>
+              <label class="plan-field"><span>素材比例</span><select id="plan-material-ratio">
+                <option value="全部素材比例">全部素材比例</option><option value="横版">全部横版</option>
+                <option value="竖版">全部竖版</option><option value="方形">全部方形</option>
+                <option value="16:9">16:9</option><option value="9:16">9:16</option><option value="1:1">1:1</option></select></label>
+              <label class="plan-field"><span>排序方式</span><input type="text" id="plan-appgrowing-sort" placeholder="留空使用平台默认"></label>
+              <label class="plan-field plan-span-2"><span>广告媒体（逗号分隔，留空为全部）</span><input type="text" id="plan-media" placeholder="微信,抖音"></label>
+              <label class="plan-field plan-span-2"><span>流量平台（逗号分隔，留空为全部）</span><input type="text" id="plan-traffic" placeholder="腾讯,巨量"></label>
+            </div>
+          </div>
+
+          <div class="plan-platform-block" data-platform="reyun">
+            <div class="plan-grid">
+              <label class="plan-field plan-span-2"><span>搜索关键词（留空为不限定）</span><input type="text" id="plan-reyun-keyword" placeholder="品牌 / APP / 品类"></label>
+              <label class="plan-field"><span>创意类型</span><select id="plan-creative-type">
+                <option value="图片">图片</option><option value="视频">视频</option><option value="">全部</option></select></label>
+              <label class="plan-field"><span>排序方式</span><select id="plan-reyun-sort">
+                <option value="曝光预估">曝光预估</option><option value="近7天曝光">近 7 天曝光</option>
+                <option value="首次投放时间">首次投放时间</option></select></label>
+            </div>
+          </div>
+
+          <div class="plan-platform-block" data-platform="internal">
+            <div class="plan-grid">
+              <label class="plan-field"><span>素材类型</span><select id="plan-internal-type">
+                <option value="图片">图片</option><option value="视频">视频</option></select></label>
+              <label class="plan-field"><span>数据日期（留空 = 自动取运行日前一天）</span><input type="date" id="plan-internal-date"></label>
+              <label class="plan-field"><span>产品关键词</span><input type="text" id="plan-internal-keyword" placeholder="例如：保险"></label>
+              <label class="plan-field"><span>消耗 Top N</span><input type="number" id="plan-internal-top" value="50" min="1"></label>
+            </div>
+            <p class="plan-hint">内部系统走「账号管家」登录态直采；关键词与 Top N 仅对视频模式生效。</p>
+            <p class="plan-hint">填了「数据日期」= 每次执行都下载这一天的表格（补采用），产出目录 = 数据日期 + 1 天；留空则跟随运行日，日常定时任务保持原行为。</p>
+          </div>
+        </fieldset>
+
+        <fieldset class="plan-fieldset">
+          <legend>一条龙：下载完成后自动分类</legend>
+          <label class="plan-switch"><input type="checkbox" id="plan-classify" checked><span>下载完成后自动执行 API 分类</span><i></i></label>
+          <div class="plan-grid">
+            <label class="plan-field"><span>API 并发数</span><input type="number" id="plan-classify-parallel" value="10" min="1" max="10"></label>
+            <label class="plan-field"><span>最低置信度</span><input type="number" id="plan-classify-confidence" value="0.85" min="0" max="1" step="0.05"></label>
+            <label class="plan-field"><span>文件操作</span><select id="plan-classify-action">
+              <option value="copy">复制（保留原始素材）</option><option value="move">移动（腾空原始素材）</option></select></label>
+          </div>
+          <label class="plan-switch"><input type="checkbox" id="plan-classify-refresh"><span>强制重新识别（跳过视觉 API 缓存）</span><i></i></label>
+          <p class="plan-hint" id="planClassifierNote">分类使用「素材治理」页配置的 API 与关键词规则。</p>
+        </fieldset>
+      </div>
+
+      <footer class="prompt-editor-footer">
+        <div>
+          <strong id="planEditorSummary">每天 06:30 执行</strong>
+          <span>计划保存在 userdata/capture_plans.json，工具启动后自动生效。</span>
+        </div>
+        <div class="prompt-editor-buttons">
+          <button class="prompt-cancel" type="button" onclick="closePlanEditor()">取消</button>
+          <button class="prompt-save" type="button" onclick="savePlanEditor()">保存计划</button>
+        </div>
+      </footer>
+    </section>
+  </div>
+
+  <div id="apiPromptModal" class="prompt-editor-modal" hidden aria-hidden="true">
+    <button class="prompt-editor-backdrop" type="button" aria-label="关闭提示词编辑器" onclick="closeApiPromptEditor()"></button>
+    <section class="prompt-editor-dialog" role="dialog" aria-modal="true" aria-labelledby="apiPromptTitle">
+      <header class="prompt-editor-head">
+        <div>
+          <span>CLASSIFICATION INSTRUCTIONS</span>
+          <h2 id="apiPromptTitle">AI 关键词提取规则</h2>
+          <p>这里控制 AI 返回哪些可见证据；AI 不返回产品和方向，最终分类由本地规则系统决定。</p>
+        </div>
+        <div class="prompt-editor-head-actions">
+          <strong id="apiPromptModeBadge">读取中</strong>
+          <button type="button" aria-label="关闭" onclick="closeApiPromptEditor()">×</button>
+        </div>
+      </header>
+
+      <div class="prompt-editor-guide">
+        <div><span>01</span><strong>文字与品牌证据</strong><small>visible_text · brand_keywords</small></div>
+        <div><span>02</span><strong>画面与版式证据</strong><small>visual · layout · action · scene keywords</small></div>
+        <div><span>03</span><strong>只提取不分类</strong><small>返回关键词 JSON，禁止 product 和 direction 结论</small></div>
+      </div>
+
+      <label class="prompt-editor-field" for="apiPromptText">
+        <span>当前生效的关键词提取提示词</span>
+        <textarea id="apiPromptText" spellcheck="false" placeholder="正在读取提示词规则..."></textarea>
+      </label>
+
+      <footer class="prompt-editor-footer">
+        <div>
+          <strong id="apiPromptCharCount">0 字符</strong>
+          <span>修改后点击“保存并生效”；已有分类任务不会中途切换规则。</span>
+        </div>
+        <div class="prompt-editor-buttons">
+          <button class="prompt-reset" type="button" onclick="resetApiPromptEditor()">恢复内置规则</button>
+          <button class="prompt-cancel" type="button" onclick="closeApiPromptEditor()">取消</button>
+          <button class="prompt-save" id="apiPromptSaveButton" type="button" onclick="saveApiPromptEditor()">保存并生效</button>
+        </div>
+      </footer>
+    </section>
+  </div>
+
+  <div id="appToast" class="app-toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>

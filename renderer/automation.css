@@ -1,0 +1,731 @@
+/*
+ * automation.css —— 「自动化计划」与「运行历史」两个页签的样式
+ *
+ * 依赖 business-theme.css 的浅色令牌（--bg / --surface / --ink / --accent 等），
+ * 在 index.html 中最后加载，只新增选择器，不覆盖既有页面。
+ */
+
+/* ============================ 页面骨架 ============================ */
+
+.auto-shell {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 18px 22px 22px;
+  overflow-y: auto;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.auto-heading {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.auto-heading > div:first-child > span {
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: .18em;
+}
+
+.auto-heading h1 {
+  margin: 5px 0 4px;
+  color: #14213a;
+  font-family: var(--display);
+  font-size: 21px;
+  letter-spacing: .01em;
+}
+
+.auto-heading p {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.auto-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+/* ============================ 按钮 ============================ */
+
+.auto-primary,
+.auto-ghost {
+  height: 34px;
+  padding: 0 15px;
+  border-radius: 8px;
+  font-size: 11px;
+  transition: all 150ms ease;
+}
+
+.auto-primary {
+  color: #fff;
+  border: 1px solid #2457c5;
+  background: linear-gradient(145deg, #2c63d8, #2457c5);
+  box-shadow: 0 4px 12px rgba(36, 87, 197, .22);
+}
+
+.auto-primary:hover {
+  background: linear-gradient(145deg, #2f6ae4, #2050b8);
+}
+
+.auto-ghost {
+  color: #34425c;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.auto-ghost:hover {
+  color: var(--accent);
+  border-color: #b9cbe8;
+  background: #f6f9ff;
+}
+
+.auto-ghost.auto-danger:hover {
+  color: var(--danger);
+  border-color: #eec3c6;
+  background: #fdf2f3;
+}
+
+.auto-ghost:disabled {
+  color: #aab4c4;
+  border-color: #e4eaf2;
+  background: #f7f9fc;
+  cursor: not-allowed;
+}
+
+/* ============================ 调度器 / 队列状态条 ============================ */
+
+.scheduler-state {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 30px;
+  padding: 0 12px;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 10px;
+}
+
+.scheduler-state i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #b7c1d1;
+}
+
+.scheduler-state[data-state="on"] i {
+  background: var(--signal);
+  box-shadow: 0 0 0 3px rgba(18, 134, 111, .14);
+}
+
+.scheduler-state[data-state="busy"] i {
+  background: var(--accent);
+  box-shadow: 0 0 0 3px rgba(36, 87, 197, .16);
+  animation: autoPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes autoPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .35; }
+}
+
+.auto-queue-bar {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 16px;
+  padding: 11px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-2);
+}
+
+.auto-queue-bar[data-idle="false"] {
+  border-color: #bcd0ee;
+  background: #f2f7ff;
+}
+
+.auto-queue-bar > div:first-child {
+  display: flex;
+  min-width: 190px;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.auto-queue-bar > div:first-child span {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 7px;
+  letter-spacing: .16em;
+}
+
+.auto-queue-bar > div:first-child strong {
+  color: #1f3150;
+  font-size: 11px;
+}
+
+.auto-queue-list {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  overflow-x: auto;
+}
+
+.auto-queue-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  padding: 5px 10px;
+  color: #2b3d5e;
+  border: 1px solid #cfdcef;
+  border-radius: 20px;
+  background: #fff;
+  font-size: 10px;
+}
+
+.auto-queue-chip b {
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 9px;
+}
+
+/* 两条车道并行时给队列条一点强调，避免被误认为"卡住" */
+.auto-queue-bar[data-parallel="true"] {
+  border-color: #9dc0a4;
+  background: #f2fbf4;
+}
+
+/* 采集与分类分色，一眼分清哪条车道在跑 */
+.auto-queue-chip[data-lane="classify"] {
+  border-color: #cbbde8;
+  background: #faf7ff;
+}
+
+.auto-queue-chip[data-lane="classify"] b {
+  color: #6b46c1;
+}
+
+.auto-queue-chip[data-lane="collect"] {
+  border-color: #cfdcef;
+  background: #fff;
+}
+
+/* ============================ 计划卡片 ============================ */
+
+.auto-plan-list {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.auto-plan-card {
+  position: relative;
+  padding: 15px 17px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.auto-plan-card:hover {
+  border-color: #bfd0e8;
+  box-shadow: var(--shadow-md);
+}
+
+.auto-plan-card[data-enabled="false"] {
+  opacity: .66;
+}
+
+.auto-plan-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.auto-plan-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.auto-plan-title strong {
+  overflow: hidden;
+  color: #16233c;
+  font-family: var(--display);
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.auto-badge {
+  flex: 0 0 auto;
+  padding: 3px 9px;
+  color: #23508f;
+  border: 1px solid #cfdff5;
+  border-radius: 20px;
+  background: #eef4ff;
+  font-size: 9px;
+}
+
+.auto-plan-schedule {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: 0 0 auto;
+  color: #34425c;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.auto-plan-schedule em {
+  padding: 3px 9px;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface-2);
+  font-family: var(--sans);
+  font-size: 9px;
+  font-style: normal;
+}
+
+.auto-plan-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-top: 11px;
+  padding-top: 11px;
+  border-top: 1px dashed var(--line);
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.auto-plan-meta b {
+  color: #2b3d5e;
+  font-weight: 600;
+}
+
+.auto-plan-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.auto-plan-actions .auto-ghost {
+  height: 30px;
+  padding: 0 12px;
+  font-size: 10px;
+}
+
+.auto-plan-actions .auto-run {
+  color: #fff;
+  border-color: #12866f;
+  background: linear-gradient(145deg, #17997f, #12866f);
+}
+
+.auto-plan-actions .auto-run:hover {
+  color: #fff;
+  border-color: #0f7561;
+  background: linear-gradient(145deg, #18a288, #0f7561);
+}
+
+/* 状态胶囊 */
+.auto-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.auto-status::before {
+  width: 6px;
+  height: 6px;
+  content: "";
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.auto-status[data-status="success"] { color: #0f7561; background: #e6f5f1; }
+.auto-status[data-status="failed"]  { color: #b2353c; background: #fdecec; }
+.auto-status[data-status="warning"] { color: #a2660a; background: #fdf3e3; }
+.auto-status[data-status="stopped"] { color: #6b7789; background: #eef1f5; }
+.auto-status[data-status="running"] { color: #2050b8; background: #e8efff; }
+.auto-status[data-status="queued"]  { color: #5b4bb5; background: #efecfd; }
+
+/* ============================ 空态 ============================ */
+
+.auto-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 7px;
+  padding: 54px 20px;
+  color: var(--muted);
+  border: 1px dashed #cbd6e4;
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+
+/* 上面的 display:flex 会盖掉 hidden 属性自带的 display:none，
+   导致有记录时空状态提示依然显示。显式补一条。 */
+.auto-empty[hidden] {
+  display: none;
+}
+
+.auto-empty strong {
+  color: #34425c;
+  font-size: 13px;
+}
+
+.auto-empty span {
+  font-size: 11px;
+}
+
+/* ============================ 运行历史表格 ============================ */
+
+.auto-run-table-wrap {
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.auto-run-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.auto-run-table thead th {
+  padding: 11px 13px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-2);
+  font-family: var(--mono);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.auto-run-table tbody td {
+  padding: 11px 13px;
+  color: #2b3d5e;
+  border-bottom: 1px solid #edf1f7;
+  vertical-align: middle;
+}
+
+.auto-run-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.auto-run-table tbody tr:hover td {
+  background: #f8fbff;
+}
+
+.auto-run-table .auto-run-time {
+  font-family: var(--mono);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.auto-run-table .auto-run-plan small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.auto-run-table .auto-run-actions {
+  display: flex;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.auto-run-table .auto-run-actions button {
+  height: 26px;
+  padding: 0 10px;
+  color: #34425c;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  font-size: 10px;
+}
+
+.auto-run-table .auto-run-actions button:hover {
+  color: var(--accent);
+  border-color: #b9cbe8;
+  background: #f6f9ff;
+}
+
+/* 再次执行：主操作，给一点强调色以便在失败行里一眼找到 */
+.auto-run-table .auto-run-actions .auto-run-rerun {
+  color: #1c4fa8;
+  border-color: #bcd0ef;
+  background: #eef4ff;
+}
+
+.auto-run-table .auto-run-actions .auto-run-rerun:hover {
+  color: #fff;
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+/* 查询日期：内部系统采错日期等于整批作废，所以单独提示 */
+.auto-run-table .auto-run-date {
+  display: block;
+  margin-top: 2px;
+  color: #8a94a6;
+  font-size: 9px;
+}
+
+/* 当天累计：同一天的多次采集共用一个目录，避免把累计量误读成本次下载量 */
+.auto-run-table .auto-run-cumulative {
+  display: block;
+  margin-top: 2px;
+  color: #8a94a6;
+  font-size: 9px;
+}
+
+/* ============================ 运行详情弹窗 ============================ */
+
+.run-log-dialog {
+  height: min(760px, calc(100vh - 68px));
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.run-log-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.run-log-body {
+  min-height: 0;
+  padding: 14px 16px;
+  overflow: auto;
+  color: #24334d;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #f8fafd;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* ============================ 计划编辑弹窗 ============================ */
+
+.plan-editor-dialog {
+  width: min(940px, calc(100vw - 68px));
+  height: min(800px, calc(100vh - 68px));
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.plan-editor-body {
+  display: flex;
+  min-height: 0;
+  padding-right: 4px;
+  overflow-y: auto;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.plan-fieldset {
+  display: flex;
+  padding: 15px 16px 16px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--surface-2);
+  flex-direction: column;
+  gap: 12px;
+}
+
+.plan-fieldset > legend {
+  padding: 0 8px;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .12em;
+}
+
+.plan-fieldset > legend b {
+  color: #1f3150;
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0;
+}
+
+.plan-grid {
+  display: grid;
+  gap: 12px 14px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.plan-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.plan-field > span {
+  color: #52607a;
+  font-size: 10px;
+}
+
+.plan-field-hint {
+  color: #7c879c;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.plan-field-hint.is-follow {
+  color: #2457c5;
+}
+
+.plan-field input:disabled {
+  color: #7c879c;
+  background: #f3f5f9;
+  cursor: not-allowed;
+}
+
+.plan-field input,
+.plan-field select {
+  width: 100%;
+  height: 34px;
+  padding: 0 10px;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+  font-size: 11px;
+}
+
+.plan-field input:focus,
+.plan-field select:focus {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(36, 87, 197, .1);
+}
+
+.plan-span-2 { grid-column: span 2; }
+.plan-span-4 { grid-column: span 4; }
+
+.plan-platform-block { display: none; }
+.plan-platform-block.active { display: block; }
+
+.weekday-row {
+  display: flex;
+  gap: 6px;
+}
+
+.weekday-row label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 34px;
+  padding: 0 11px;
+  color: #52607a;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.weekday-row label:has(input:checked) {
+  color: #fff;
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.weekday-row input {
+  width: 0;
+  height: 0;
+  margin: 0;
+  opacity: 0;
+}
+
+.plan-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  align-self: flex-start;
+  color: #34425c;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.plan-switch input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.plan-switch i {
+  position: relative;
+  display: block;
+  width: 34px;
+  height: 19px;
+  flex: 0 0 auto;
+  border-radius: 20px;
+  background: #ccd6e4;
+  transition: background 160ms ease;
+}
+
+.plan-switch i::after {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 15px;
+  height: 15px;
+  content: "";
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(23, 42, 72, .25);
+  transition: transform 160ms ease;
+}
+
+.plan-switch input:checked + span + i {
+  background: var(--accent);
+}
+
+.plan-switch input:checked + span + i::after {
+  transform: translateX(15px);
+}
+
+.plan-hint {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+/* ============================ 窄屏适配 ============================ */
+
+@media (max-width: 1360px) {
+  .plan-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .plan-span-4 { grid-column: span 2; }
+}

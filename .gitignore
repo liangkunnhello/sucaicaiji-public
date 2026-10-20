@@ -1,0 +1,33 @@
+# ---------- 依赖与运行时 ----------
+# 体积过大，不入库：
+#   node_modules/            单文件 electron.exe 就有 168MB，超过 GitHub 的 100MB 上限
+#   classify-engine/runtime/ 精简 Python 运行时，约 390MB
+# 目标机器还原方式见 README「依赖还原」。
+node_modules/
+classify-engine/runtime/
+
+# ---------- 运行数据 ----------
+# 本地运行数据不入库：cache 可再生、plans/history 含机器相关路径且运行时会变化。
+# 配置只提交一份脱敏模板，真实配置（含密钥与本地目录）由使用者自行创建。
+userdata/*
+!userdata/classify_config.example.json
+
+# ---------- 其他 ----------
+# .workbuddy/ 与 .workbuddy-ai/ 是本地智能体工作数据（记忆、日志），不入库
+.workbuddy/
+.workbuddy-ai/
+
+# SQLite 数据库文件是本地资产库，不进版本库（DDL 在 classify-engine/db/schema_v1.sql）
+*.db
+*.db-journal
+*.db-wal
+
+.codegraph/
+__pycache__/
+*.pyc
+*.log
+.DS_Store
+Thumbs.db
+
+# 测试临时目录（避开 %TEMP%，见 classify-engine/tests/_tempdir.py）
+.test-tmp/
